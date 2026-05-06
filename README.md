@@ -62,35 +62,18 @@ These are used for agentic planning and question interpretation, but the final a
 
 ## Approach followed
 
-1. Removed fake sample responses and replaced them with live Shopify data fetches.
-2. Added robust pagination and retry handling for the Shopify API.
-3. Sliced order data by time window after fetching real records so recent-period questions still work reliably.
-4. Standardized backend responses into a UI-friendly schema.
-5. Connected the frontend to the backend with a small API client and a Vite dev proxy.
-6. Prepared the project for deployment on Render with separate frontend and backend services.
-7. Updated the UI to a minimal black-and-white layout with a full-width question composer.
+1. Added robust pagination and retry handling for the Shopify API.
+2. Sliced order data by time window after fetching real records so recent-period questions still work reliably.
+3. Standardized backend responses into a UI-friendly schema.
+4. Connected the frontend to the backend with a small API client and a Vite dev proxy.
+5. Prepared the project for deployment on Render with separate frontend and backend services.
+6. Updated the UI to a minimal black-and-white layout with a full-width question composer.
 
 ## How the main problems were solved
-
-### Dummy values removed
-
-The earlier hardcoded agent output was replaced with live calls to Shopify so the product now returns actual store data instead of fake counts or fixed revenue values.
 
 ### Order windows became reliable
 
 Instead of depending on a narrow API date filter, orders are fetched first and then filtered locally for the requested window. That made last-7-days and last-month queries much more dependable.
-
-### Frontend/backend connectivity
-
-The frontend was changed to use a relative API strategy in development and a deployed backend URL in production. Vite proxying also removed the connection-refused issue during local dev.
-
-### CORS on deployed frontend
-
-The backend now allows the deployed Vercel origin and also supports a `FRONTEND_ORIGINS` environment variable so new preview URLs can be added without code changes.
-
-### Security cleanup
-
-Secrets were removed from docs and history was cleaned so exposed keys are not left in the repository.
 
 ## Project structure
 
@@ -122,7 +105,8 @@ npm run dev
 - **Backend**: Render Web Service
 - **Frontend**: Render Static Site or another static host such as Vercel
 - **Backend start command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- **Frontend API base**: `https://shopify-ai-agent-h9x5.onrender.com`
+- **Frontend Url**: `https://shopify-ai-agent-silk.vercel.app`
+- **Backend url**: `https://shopify-ai-agent-h9x5.onrender.com`
 
 ## If more time were available
 
