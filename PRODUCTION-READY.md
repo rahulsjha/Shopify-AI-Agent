@@ -165,7 +165,7 @@ SHOPIFY_ACCESS_TOKEN=[protected]
 
 ### Backend `backend/.env` (LLM Config)
 ```
-GEMINI_API_KEY=[redacted]
+GEMINI_API_KEY=[your-gemini-api-key-here]
 GEMINI_MODEL=gemini-2.5-flash
 ```
 
