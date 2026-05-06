@@ -137,3 +137,31 @@ npm run dev
 
 The repository expects Shopify credentials and optional Gemini settings in the root `.env` file.
 
+## AWS Architecture Prompt
+
+Use the following prompt template when you want a clear AWS architecture, diagram, and deployment plan for this project. It guides an LLM or architecture tool to produce a complete solution including resources, cost considerations, security, and IaC snippets.
+
+Prompt template (copy/paste):
+
+"You are an experienced AWS solutions architect. Design a production-ready AWS architecture for a read-only Shopify analytics agent with a FastAPI backend and a React + Vite frontend. Provide a high-level diagram (list nodes and connections), a concise justification for each AWS service chosen, security controls, scalability patterns, monitoring/observability, backup and recovery strategy, cost optimization recommendations, and a minimal Terraform or CloudFormation snippet to provision the core infrastructure.
+
+Requirements and constraints:
+- Backend: FastAPI app (uvicorn/gunicorn), expected moderate traffic (10-500 RPS), needs secure access to Shopify Admin API via a secret token.
+- Frontend: Static React site that must be served with a CDN and supports custom domain and TLS.
+- Data: No persistent write-heavy store required; caching of Shopify responses is desirable (short TTLs).
+- Observability: Request tracing, structured logs, and basic dashboards/alerts for errors and latency.
+
+Deliverables:
+1. High-level architecture diagram (textual nodes + arrows).
+2. Recommended AWS services (e.g., ALB/API Gateway, ECS/Fargate or EKS, S3 + CloudFront, ElastiCache, RDS if needed), with 1–2 sentence justification each.
+3. Security controls: IAM roles, least-privilege policies, KMS for secrets, use of AWS Secrets Manager or Parameter Store, and CORS considerations for the frontend host.
+4. Scalability and availability plan: auto-scaling rules, multi-AZ, health checks, connection pooling.
+5. Observability: CloudWatch metrics/logs, X-Ray tracing, alarm thresholds and notification channels.
+6. Cost optimizations: reserved/spot instances suggestions, cache tuning, S3 + CloudFront static hosting, reducing data transfer costs.
+7. Minimal IaC example (Terraform): create an S3 website + CloudFront distribution for the frontend and a Fargate service (or Lambda + API Gateway alternative) for the backend with a Secrets Manager secret for Shopify token and an example IAM role.
+8. Deployment steps and roll-back guidance.
+
+Output format: Use clear labeled sections and short code blocks for any config or IaC snippets. Provide a one-paragraph summary at the end explaining why this architecture fits a read-only Shopify analytics product." 
+
+Use or adapt this prompt whenever you want a tailored AWS deployment plan and artifacts for this repository.
+

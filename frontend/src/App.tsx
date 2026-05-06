@@ -43,10 +43,6 @@ export default function App() {
         <div className="hero__copy">
           <p className="eyebrow">Shopify analytics cockpit</p>
           <h1>Ask a question, get the answer, and inspect the data behind it.</h1>
-          <p className="lede">
-            The backend agent fetches Shopify data read-only, computes the analysis in Python, and returns a structured
-            result for tables and charts.
-          </p>
         </div>
       </section>
 
