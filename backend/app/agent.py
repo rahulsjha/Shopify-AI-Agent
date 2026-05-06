@@ -67,7 +67,7 @@ def build_agent_executor() -> AgentExecutor:
     return AgentExecutor(
         agent=agent,
         tools=tools,
-        verbose=False,
+        verbose=True,
         handle_parsing_errors=True,
-        max_iterations=6,
+        max_iterations=20,
     )

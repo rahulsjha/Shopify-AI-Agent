@@ -44,7 +44,7 @@ def load_settings() -> Settings:
         api_version=api_version,
         access_token=access_token,
         gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip() or None,
-        gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash").strip(),
+        gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip(),
         max_pages=int(os.getenv("SHOPIFY_MAX_PAGES", "5")),
         request_timeout_seconds=float(os.getenv("SHOPIFY_REQUEST_TIMEOUT", "30")),
         max_retries=int(os.getenv("SHOPIFY_MAX_RETRIES", "3")),
