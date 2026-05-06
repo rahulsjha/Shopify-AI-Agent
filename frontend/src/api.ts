@@ -1,7 +1,8 @@
 import type { AskResponse } from './types'
 
 export async function askQuestion(question: string): Promise<AskResponse> {
-  const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').trim()
+  const defaultBaseUrl = 'https://shopify-ai-agent-h9x5.onrender.com'
+  const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? defaultBaseUrl).trim().replace(/\/$/, '')
   const response = await fetch(`${baseUrl}/api/ask`, {
     method: 'POST',
     headers: {
