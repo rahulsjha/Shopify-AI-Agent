@@ -1,9 +1,7 @@
 import type { AskResponse } from './types'
 
-const DEFAULT_BASE_URL = 'http://localhost:8000'
-
 export async function askQuestion(question: string): Promise<AskResponse> {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE_URL
+  const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').trim()
   const response = await fetch(`${baseUrl}/api/ask`, {
     method: 'POST',
     headers: {

@@ -7,3 +7,4 @@ langchain
 langchain-experimental
 langchain-google-genai
 pytest
+gunicorn

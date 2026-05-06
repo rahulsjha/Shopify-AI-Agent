@@ -12,6 +12,18 @@ from .shopify_client import ShopifyClient
 logger = logging.getLogger(__name__)
 
 
+def _parse_shopify_datetime(value: str) -> datetime | None:
+    """Parse Shopify ISO timestamps safely."""
+    if not value:
+        return None
+
+    cleaned_value = value.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(cleaned_value)
+    except ValueError:
+        return None
+
+
 def fetch_orders_data(question: str) -> dict[str, Any] | None:
     """Fetch orders from Shopify API."""
     question_lower = question.lower()
@@ -29,19 +41,24 @@ def fetch_orders_data(question: str) -> dict[str, Any] | None:
             timeout_seconds=settings.request_timeout_seconds,
             max_retries=settings.max_retries,
         )
-        
-        # Determine time range
-        if "7 day" in question_lower or "last week" in question_lower or "past week" in question_lower:
-            since_date = (datetime.now() - timedelta(days=7)).isoformat()
-            params = {"created_at_min": since_date, "status": "any"}
-        else:
-            # Default to last 30 days
-            since_date = (datetime.now() - timedelta(days=30)).isoformat()
-            params = {"created_at_min": since_date, "status": "any"}
-        
-        response = client.get_shopify_data(resource="orders", params=params, max_pages=5)
-        client.close()
-        return response
+
+        try:
+            response = client.get_shopify_data(resource="orders", params={"status": "any"}, max_pages=10)
+            if response.get("count", 0) > 0:
+                return response
+
+            if "7 day" in question_lower or "last week" in question_lower or "past week" in question_lower:
+                since_date = (datetime.now() - timedelta(days=7)).isoformat()
+                response = client.get_shopify_data(
+                    resource="orders",
+                    params={"status": "any", "created_at_min": since_date},
+                    max_pages=10,
+                )
+                return response
+
+            return response
+        finally:
+            client.close()
     except Exception as e:
         logger.error(f"Error fetching orders: {e}", exc_info=True)
         return None
@@ -111,14 +128,46 @@ def process_orders_response(orders_data: dict[str, Any], question: str) -> dict:
     total_orders = len(items)
     total_revenue = sum(float(order.get("total_price", 0) or 0) for order in items)
     avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
+
+    order_rows: list[dict[str, Any]] = []
+    parsed_orders: list[tuple[datetime, dict[str, Any], float]] = []
+
+    for order in items:
+        order_date = _parse_shopify_datetime(order.get("created_at", ""))
+        order_total = float(order.get("total_price", 0) or 0)
+        if order_date is not None:
+            parsed_orders.append((order_date, order, order_total))
+
+    if not parsed_orders:
+        return {
+            "answer": f"Based on Shopify data, I found {total_orders} orders with total revenue of ${total_revenue:,.2f}. Average order value was ${avg_order_value:,.2f}.",
+            "table": [],
+            "chart": None,
+        }
+
+    parsed_orders.sort(key=lambda entry: entry[0])
+    latest_order_date = parsed_orders[-1][0].date()
+
+    requested_window_days = None
+    if "7 day" in question_lower or "last week" in question_lower or "past week" in question_lower:
+        requested_window_days = 7
+    elif "30 day" in question_lower or "last month" in question_lower or "past month" in question_lower:
+        requested_window_days = 30
+
+    if requested_window_days is not None:
+        window_start = latest_order_date - timedelta(days=requested_window_days - 1)
+        filtered_orders = [
+            entry for entry in parsed_orders if entry[0].date() >= window_start
+        ]
+    else:
+        filtered_orders = parsed_orders
     
     # Group by date for daily metrics
     daily_metrics = defaultdict(lambda: {"orders": 0, "revenue": 0.0})
-    for order in items:
-        date_str = order.get("created_at", "").split("T")[0]
-        if date_str:
-            daily_metrics[date_str]["orders"] += 1
-            daily_metrics[date_str]["revenue"] += float(order.get("total_price", 0) or 0)
+    for order_date, order, order_total in filtered_orders:
+        date_str = order_date.date().isoformat()
+        daily_metrics[date_str]["orders"] += 1
+        daily_metrics[date_str]["revenue"] += order_total
     
     # Sort by date
     sorted_dates = sorted(daily_metrics.keys())
@@ -128,7 +177,7 @@ def process_orders_response(orders_data: dict[str, Any], question: str) -> dict:
     chart_points = []
     for date in sorted_dates[-7:]:  # Last 7 days
         metrics = daily_metrics[date]
-        table_data.append({
+        order_rows.append({
             "Date": date,
             "Orders": metrics["orders"],
             "Revenue": f"${metrics['revenue']:,.2f}",
@@ -140,10 +189,16 @@ def process_orders_response(orders_data: dict[str, Any], question: str) -> dict:
         })
     
     answer = f"Based on Shopify data, there were {total_orders} orders with total revenue of ${total_revenue:,.2f}. Average order value was ${avg_order_value:,.2f}."
+
+    if requested_window_days is not None:
+        answer = (
+            f"Based on Shopify data, there were {len(filtered_orders)} orders in the latest {requested_window_days} days of available store history. "
+            f"Total orders fetched: {total_orders}. Total revenue was ${total_revenue:,.2f}, and average order value was ${avg_order_value:,.2f}."
+        )
     
     return {
         "answer": answer,
-        "table": table_data,
+        "table": order_rows,
         "chart": {
             "type": "line",
             "title": "Daily Order Volume",

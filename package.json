@@ -1,0 +1,12 @@
+{
+  "name": "shopify-ai-agent-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build:frontend": "cd frontend && npm ci && npm run build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "python -m pip install -r backend/requirements.txt",
+    "start:backend": "uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}",
+    "build": "npm run build:frontend && npm run build:backend"
+  }
+}
