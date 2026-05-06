@@ -10,7 +10,7 @@ Deploy as **two separate services** on Render:
 ### Configuration
 - **Root Directory**: `backend`
 - **Build Command**: `pip install -r requirements.txt`
-- **Start Command**: (Leave empty - Procfile auto-detected)
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 - **Python Version**: 3.11.9 (via `backend/runtime.txt`)
 
 ### Required Environment Variables
@@ -43,7 +43,7 @@ npm run dev:frontend
 ```
 
 ## Important Notes
-- The backend's `Procfile` handles the start command automatically
+- The start command runs from the `backend/` directory root, so `app.main:app` refers to `backend/app/main.py`
 - Frontend CORS is configured for both `localhost:5173` and `127.0.0.1:5173`
 - The frontend uses Vite's dev server proxy in development to reach the backend
 - In production, use the `VITE_API_BASE_URL` environment variable to point to your backend service URL
