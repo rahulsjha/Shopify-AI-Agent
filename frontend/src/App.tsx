@@ -48,21 +48,6 @@ export default function App() {
             result for tables and charts.
           </p>
         </div>
-
-        <div className="hero__panel">
-          <div className="stat-card">
-            <span>Read only</span>
-            <strong>GET-based Shopify tool</strong>
-          </div>
-          <div className="stat-card">
-            <span>Analysis</span>
-            <strong>PythonAstREPLTool</strong>
-          </div>
-          <div className="stat-card">
-            <span>Output</span>
-            <strong>Answer + table + chart</strong>
-          </div>
-        </div>
       </section>
 
       <section className="workspace">
