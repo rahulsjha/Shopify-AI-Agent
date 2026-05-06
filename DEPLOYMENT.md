@@ -19,6 +19,8 @@ Deploy as **two separate services** on Render:
 - `SHOPIFY_ACCESS_TOKEN` - Your Shopify access token
 - `GEMINI_API_KEY` - (Optional) Google Gemini API key for LLM features
 - `GEMINI_MODEL` - (Optional) Gemini model name
+- `FRONTEND_ORIGINS` - Comma-separated allowed frontend origins
+  - Example: `https://shopify-ai-agent-silk.vercel.app,http://localhost:5173,http://127.0.0.1:5173`
 
 ## Frontend Service Setup
 
@@ -44,6 +46,6 @@ npm run dev:frontend
 
 ## Important Notes
 - The start command runs from the `backend/` directory root, so `app.main:app` refers to `backend/app/main.py`
-- Frontend CORS is configured for both `localhost:5173` and `127.0.0.1:5173`
+- Frontend CORS is configured from `FRONTEND_ORIGINS` and also allows Vercel preview domains
 - The frontend uses Vite's dev server proxy in development to reach the backend
 - In production, use the `VITE_API_BASE_URL` environment variable to point to your backend service URL

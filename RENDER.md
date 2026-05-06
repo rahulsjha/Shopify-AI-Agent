@@ -9,6 +9,7 @@
   - `SHOPIFY_ACCESS_TOKEN`
   - `SHOPIFY_API_VERSION`
   - `GEMINI_API_KEY`
+  - `FRONTEND_ORIGINS` = `https://shopify-ai-agent-silk.vercel.app,http://localhost:5173,http://127.0.0.1:5173`
 
 ## 2) Frontend (Static Site)
 - **Root Directory**: `frontend`
@@ -20,4 +21,5 @@
 ## Notes
 - The start command runs from the `backend/` directory, so `app.main:app` refers to `backend/app/main.py`
 - Runtime is set to Python 3.11.9 via `backend/runtime.txt`
+- Set `FRONTEND_ORIGINS` on Render so the Vercel frontend can call the API without CORS errors
 - Frontend proxies API calls to the backend via the environment variable
